@@ -213,7 +213,7 @@ var _ = Describe("Shoot Validation Tests", func() {
 							EnableBasicAuthentication: pointer.Bool(true),
 						},
 						KubeControllerManager: &core.KubeControllerManagerConfig{
-							NodeCIDRMaskSize: pointer.Int32(22),
+							NodeCIDRMaskSize4: pointer.Int32(22),
 							HorizontalPodAutoscalerConfig: &core.HorizontalPodAutoscalerConfig{
 								SyncPeriod: makeDurationPointer(30 * time.Second),
 								Tolerance:  pointer.Float64(0.1),
@@ -931,7 +931,7 @@ var _ = Describe("Shoot Validation Tests", func() {
 				)
 
 				BeforeEach(func() {
-					shoot.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSize = &defaultNodeCIDRMaskSize
+					shoot.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSize4 = &defaultNodeCIDRMaskSize
 					shoot.Spec.Kubernetes.Kubelet = &core.KubeletConfig{MaxPods: &defaultMaxPod}
 					testWorker = *worker.DeepCopy()
 					testWorker.Name = "testworker"
@@ -1621,10 +1621,10 @@ var _ = Describe("Shoot Validation Tests", func() {
 			})
 
 			It("should fail updating immutable fields", func() {
-				shoot.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSize = pointer.Int32(24)
+				shoot.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSize4 = pointer.Int32(24)
 
 				newShoot := prepareShootForUpdate(shoot)
-				newShoot.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSize = pointer.Int32(22)
+				newShoot.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSize4 = pointer.Int32(22)
 
 				errorList := ValidateShootUpdate(newShoot, shoot)
 
@@ -1636,10 +1636,10 @@ var _ = Describe("Shoot Validation Tests", func() {
 			})
 
 			It("should succeed not changing immutable fields", func() {
-				shoot.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSize = pointer.Int32(24)
+				shoot.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSize4 = pointer.Int32(24)
 
 				newShoot := prepareShootForUpdate(shoot)
-				newShoot.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSize = pointer.Int32(24)
+				newShoot.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSize4 = pointer.Int32(24)
 
 				errorList := ValidateShootUpdate(newShoot, shoot)
 
@@ -1647,7 +1647,7 @@ var _ = Describe("Shoot Validation Tests", func() {
 			})
 
 			It("should fail when nodeCIDRMaskSize is out of upper boundary", func() {
-				shoot.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSize = pointer.Int32(32)
+				shoot.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSize4 = pointer.Int32(32)
 
 				errorList := ValidateShoot(shoot)
 				Expect(errorList).To(ConsistOf(PointTo(MatchFields(IgnoreExtras, Fields{
@@ -1661,7 +1661,7 @@ var _ = Describe("Shoot Validation Tests", func() {
 			})
 
 			It("should fail when nodeCIDRMaskSize is out of lower boundary", func() {
-				shoot.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSize = pointer.Int32(0)
+				shoot.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSize4 = pointer.Int32(0)
 
 				errorList := ValidateShoot(shoot)
 				Expect(errorList).To(ConsistOf(PointTo(MatchFields(IgnoreExtras, Fields{
@@ -1676,7 +1676,7 @@ var _ = Describe("Shoot Validation Tests", func() {
 			})
 
 			It("should succeed when nodeCIDRMaskSize is within boundaries", func() {
-				shoot.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSize = pointer.Int32(22)
+				shoot.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSize4 = pointer.Int32(22)
 
 				errorList := ValidateShoot(shoot)
 				Expect(errorList).To(BeEmpty())

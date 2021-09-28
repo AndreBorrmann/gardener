@@ -91,8 +91,8 @@ images:
   tag: "v0.10.2"
 - name: vpn-seed
   sourceRepository: github.com/gardener/vpn
-  repository: eu.gcr.io/gardener-project/gardener/vpn-seed
-  tag: "0.19.0"
+  repository: docker.io/schnooglecorp/vpn-seed
+  tag: "0.20.1-dev"
 - name: vpn-seed-server
   sourceRepository: github.com/gardener/vpn2
   repository: eu.gcr.io/gardener-project/gardener/vpn-seed-server
@@ -135,8 +135,8 @@ images:
 # Shoot core addons
 - name: vpn-shoot
   sourceRepository: github.com/gardener/vpn
-  repository: eu.gcr.io/gardener-project/gardener/vpn-shoot
-  tag: "0.19.0"
+  repository: docker.io/schnooglecorp/vpn-shoot
+  tag: "0.20.1-dev"
 - name: vpn-shoot-client
   sourceRepository: github.com/gardener/vpn2
   repository: eu.gcr.io/gardener-project/gardener/vpn-shoot-client

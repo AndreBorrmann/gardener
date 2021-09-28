@@ -17,13 +17,13 @@ package network_test
 import (
 	"context"
 	"fmt"
-	"net"
 	"time"
 
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sirupsen/logrus"
+	"inet.af/netaddr"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -41,6 +41,7 @@ import (
 	mocktime "github.com/gardener/gardener/pkg/mock/go/time"
 	"github.com/gardener/gardener/pkg/operation/botanist/component"
 	"github.com/gardener/gardener/pkg/operation/botanist/component/extensions/network"
+	"github.com/gardener/gardener/pkg/utils/cidrs"
 	gutil "github.com/gardener/gardener/pkg/utils/gardener"
 	"github.com/gardener/gardener/pkg/utils/test"
 	. "github.com/gardener/gardener/pkg/utils/test/matchers"
@@ -87,13 +88,11 @@ var _ = Describe("#Network", func() {
 
 		c = fake.NewClientBuilder().WithScheme(s).Build()
 
-		podCIDR := net.IPNet{
-			IP:   net.ParseIP(networkPodIp),
-			Mask: net.CIDRMask(networkPodMask, 32),
+		podCIDR := cidrs.CidrPair{
+			V4Cidr: netaddr.MustParseIPPrefix(fmt.Sprintf("%s/%d", networkPodIp, networkPodMask)),
 		}
-		serviceCIDR := net.IPNet{
-			IP:   net.ParseIP(networkServiceIp),
-			Mask: net.CIDRMask(networkServiceMask, 32),
+		serviceCIDR := cidrs.CidrPair{
+			V4Cidr: netaddr.MustParseIPPrefix(fmt.Sprintf("%s/%d", networkServiceIp, networkServiceMask)),
 		}
 
 		values = &network.Values{

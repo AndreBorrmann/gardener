@@ -363,8 +363,8 @@ func validateAddons(addons *core.Addons, kubernetes core.Kubernetes, purpose *co
 	return allErrs
 }
 
-// ValidateNodeCIDRMaskWithMaxPod validates if the Pod Network has enough ip addresses (configured via the NodeCIDRMask on the kube controller manager) to support the highest max pod setting on the shoot
-func ValidateNodeCIDRMaskWithMaxPod(maxPod int32, nodeCIDRMaskSize int32) field.ErrorList {
+// ValidateNodeCIDRMaskWithMaxPod4 validates if the IPv4 Pod Network has enough ip addresses (configured via the NodeCIDRMask on the kube controller manager) to support the highest max pod setting on the shoot
+func ValidateNodeCIDRMaskWithMaxPod4(maxPod int32, nodeCIDRMaskSize int32) field.ErrorList {
 	allErrs := field.ErrorList{}
 
 	free := float64(32 - nodeCIDRMaskSize)
@@ -372,7 +372,22 @@ func ValidateNodeCIDRMaskWithMaxPod(maxPod int32, nodeCIDRMaskSize int32) field.
 	ipAdressesAvailable := int32(math.Pow(2, free) - 2)
 
 	if ipAdressesAvailable < maxPod {
-		allErrs = append(allErrs, field.Invalid(field.NewPath("spec").Child("kubernetes").Child("kubeControllerManager").Child("nodeCIDRMaskSize"), nodeCIDRMaskSize, fmt.Sprintf("kubelet or kube-controller configuration incorrect. Please adjust the NodeCIDRMaskSize of the kube-controller to support the highest maxPod on any worker pool. The NodeCIDRMaskSize of '%d (default: 24)' of the kube-controller only supports '%d' ip adresses. Highest maxPod setting on kubelet is '%d (default: 110)'. Please choose a NodeCIDRMaskSize that at least supports %d ip adresses", nodeCIDRMaskSize, ipAdressesAvailable, maxPod, maxPod)))
+		allErrs = append(allErrs, field.Invalid(field.NewPath("spec").Child("kubernetes").Child("kubeControllerManager").Child("nodeCIDRMaskSize4"), nodeCIDRMaskSize, fmt.Sprintf("kubelet or kube-controller configuration incorrect. Please adjust the NodeCIDRMaskSize4 of the kube-controller to support the highest maxPod on any worker pool. The NodeCIDRMaskSize of '%d (default: 24)' of the kube-controller only supports '%d' ip adresses. Highest maxPod setting on kubelet is '%d (default: 110)'. Please choose a NodeCIDRMaskSize that at least supports %d ip adresses", nodeCIDRMaskSize, ipAdressesAvailable, maxPod, maxPod)))
+	}
+
+	return allErrs
+}
+
+// ValidateNodeCIDRMaskWithMaxPod6 validates if the IPv6 Pod Network has enough ip addresses (configured via the NodeCIDRMask on the kube controller manager) to support the highest max pod setting on the shoot
+func ValidateNodeCIDRMaskWithMaxPod6(maxPod int32, nodeCIDRMaskSize int32) field.ErrorList {
+	allErrs := field.ErrorList{}
+
+	free := float64(128 - nodeCIDRMaskSize)
+	// first and last ips are reserved
+	ipAdressesAvailable := int32(math.Pow(2, free) - 2)
+
+	if ipAdressesAvailable < maxPod {
+		allErrs = append(allErrs, field.Invalid(field.NewPath("spec").Child("kubernetes").Child("kubeControllerManager").Child("nodeCIDRMaskSize6"), nodeCIDRMaskSize, fmt.Sprintf("kubelet or kube-controller configuration incorrect. Please adjust the NodeCIDRMaskSize6 of the kube-controller to support the highest maxPod on any worker pool. The NodeCIDRMaskSize of '%d (default: ??)' of the kube-controller only supports '%d' ip adresses. Highest maxPod setting on kubelet is '%d (default: ??)'. Please choose a NodeCIDRMaskSize that at least supports %d ip adresses", nodeCIDRMaskSize, ipAdressesAvailable, maxPod, maxPod)))
 	}
 
 	return allErrs
@@ -387,13 +402,15 @@ func validateKubeControllerManagerUpdate(newConfig, oldConfig *core.KubeControll
 	)
 
 	if newConfig != nil {
-		nodeCIDRMaskNew = newConfig.NodeCIDRMaskSize
+		nodeCIDRMaskNew = newConfig.NodeCIDRMaskSize4
 	}
 	if oldConfig != nil {
-		nodeCIDRMaskOld = oldConfig.NodeCIDRMaskSize
+		nodeCIDRMaskOld = oldConfig.NodeCIDRMaskSize4
 	}
 
 	allErrs = append(allErrs, apivalidation.ValidateImmutableField(nodeCIDRMaskNew, nodeCIDRMaskOld, fldPath.Child("nodeCIDRMaskSize"))...)
+
+	// TODO: also validate nodeCIDRMaskSize6
 
 	return allErrs
 }
@@ -831,11 +848,12 @@ func validateKubeControllerManager(kcm *core.KubeControllerManagerConfig, versio
 	allErrs := field.ErrorList{}
 
 	if kcm != nil {
-		if maskSize := kcm.NodeCIDRMaskSize; maskSize != nil {
+		if maskSize := kcm.NodeCIDRMaskSize4; maskSize != nil {
 			if *maskSize < 16 || *maskSize > 28 {
-				allErrs = append(allErrs, field.Invalid(fldPath.Child("nodeCIDRMaskSize"), *maskSize, "nodeCIDRMaskSize must be between 16 and 28"))
+				allErrs = append(allErrs, field.Invalid(fldPath.Child("nodeCIDRMaskSize4"), *maskSize, "nodeCIDRMaskSize4 must be between 16 and 28"))
 			}
 		}
+		// TODO: also validate NodeCIDRMaskSize6
 
 		if podEvictionTimeout := kcm.PodEvictionTimeout; podEvictionTimeout != nil && podEvictionTimeout.Duration <= 0 {
 			allErrs = append(allErrs, field.Invalid(fldPath.Child("podEvictionTimeout"), podEvictionTimeout.Duration, "podEvictionTimeout must be larger than 0"))
@@ -966,12 +984,20 @@ func validateProvider(provider core.Provider, kubernetes core.Kubernetes, fldPat
 
 	allErrs = append(allErrs, ValidateWorkers(provider.Workers, fldPath.Child("workers"))...)
 
-	if kubernetes.KubeControllerManager != nil && kubernetes.KubeControllerManager.NodeCIDRMaskSize != nil {
+	if kubernetes.KubeControllerManager != nil && kubernetes.KubeControllerManager.NodeCIDRMaskSize4 != nil {
 		if maxPod == 0 {
 			// default maxPod setting on kubelet
 			maxPod = 110
 		}
-		allErrs = append(allErrs, ValidateNodeCIDRMaskWithMaxPod(maxPod, *kubernetes.KubeControllerManager.NodeCIDRMaskSize)...)
+		allErrs = append(allErrs, ValidateNodeCIDRMaskWithMaxPod4(maxPod, *kubernetes.KubeControllerManager.NodeCIDRMaskSize4)...)
+	}
+
+	if kubernetes.KubeControllerManager != nil && kubernetes.KubeControllerManager.NodeCIDRMaskSize6 != nil {
+		if maxPod == 0 {
+			// default maxPod setting on kubelet
+			maxPod = 110
+		}
+		allErrs = append(allErrs, ValidateNodeCIDRMaskWithMaxPod6(maxPod, *kubernetes.KubeControllerManager.NodeCIDRMaskSize6)...)
 	}
 
 	return allErrs

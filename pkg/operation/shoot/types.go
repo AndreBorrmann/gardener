@@ -42,6 +42,7 @@ import (
 	"github.com/gardener/gardener/pkg/operation/botanist/component/vpnseedserver"
 	"github.com/gardener/gardener/pkg/operation/etcdencryption"
 	"github.com/gardener/gardener/pkg/operation/garden"
+	"github.com/gardener/gardener/pkg/utils/cidrs"
 
 	"github.com/Masterminds/semver"
 	corev1 "k8s.io/api/core/v1"
@@ -162,10 +163,10 @@ type Logging struct {
 
 // Networks contains pre-calculated subnets and IP address for various components.
 type Networks struct {
-	// Pods subnet
-	Pods *net.IPNet
-	// Services subnet
-	Services *net.IPNet
+	// Pods subnet(s)
+	Pods *cidrs.CidrPair
+	// Services subnet(s)
+	Services *cidrs.CidrPair
 	// APIServer is the ClusterIP of default/kubernetes Service
 	APIServer net.IP
 	// CoreDNS is the ClusterIP of kube-system/coredns Service

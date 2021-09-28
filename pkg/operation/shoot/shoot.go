@@ -17,7 +17,6 @@ package shoot
 import (
 	"context"
 	"fmt"
-	"net"
 	"strconv"
 	"strings"
 
@@ -41,6 +40,7 @@ import (
 	"github.com/gardener/gardener/pkg/operation/common"
 	"github.com/gardener/gardener/pkg/operation/garden"
 	"github.com/gardener/gardener/pkg/utils"
+	"github.com/gardener/gardener/pkg/utils/cidrs"
 	gutil "github.com/gardener/gardener/pkg/utils/gardener"
 	kutil "github.com/gardener/gardener/pkg/utils/kubernetes"
 	"github.com/gardener/gardener/pkg/utils/version"
@@ -574,30 +574,32 @@ func ToNetworks(s *gardencorev1beta1.Shoot) (*Networks, error) {
 		return nil, fmt.Errorf("shoot's pods cidr is empty")
 	}
 
-	_, svc, err := net.ParseCIDR(*s.Spec.Networking.Services)
+	svc, err := cidrs.ParseCidrs(*s.Spec.Networking.Services)
 	if err != nil {
 		return nil, fmt.Errorf("cannot parse shoot's network cidr %w", err)
 	}
 
-	_, pods, err := net.ParseCIDR(*s.Spec.Networking.Pods)
+	pods, err := cidrs.ParseCidrs(*s.Spec.Networking.Pods)
 	if err != nil {
 		return nil, fmt.Errorf("cannot parse shoot's network cidr %w", err)
 	}
 
-	apiserver, err := common.ComputeOffsetIP(svc, 1)
+	// TODO: do we need to consider IPv4/IPv6 ?
+	//       let's assume using v4 addressed for apiServer and coreDNS
+	apiserver, err := common.ComputeOffsetIP(svc.Cidr4().IPNet(), 1)
 	if err != nil {
 		return nil, fmt.Errorf("cannot calculate default/kubernetes ClusterIP: %w", err)
 	}
 
-	coreDNS, err := common.ComputeOffsetIP(svc, 10)
+	coreDNS, err := common.ComputeOffsetIP(svc.Cidr4().IPNet(), 10)
 	if err != nil {
 		return nil, fmt.Errorf("cannot calculate CoreDNS ClusterIP: %w", err)
 	}
 
 	return &Networks{
 		CoreDNS:   coreDNS,
-		Pods:      pods,
-		Services:  svc,
+		Pods:      &pods,
+		Services:  &svc,
 		APIServer: apiserver,
 	}, nil
 }

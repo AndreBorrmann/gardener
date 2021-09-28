@@ -17,7 +17,6 @@ package kubecontrollermanager_test
 import (
 	"context"
 	"fmt"
-	"net"
 	"time"
 
 	gardencorev1beta1 "github.com/gardener/gardener/pkg/apis/core/v1beta1"
@@ -26,6 +25,7 @@ import (
 	mockclient "github.com/gardener/gardener/pkg/mock/controller-runtime/client"
 	"github.com/gardener/gardener/pkg/operation/botanist/component"
 	. "github.com/gardener/gardener/pkg/operation/botanist/component/kubecontrollermanager"
+	"github.com/gardener/gardener/pkg/utils/cidrs"
 	kutil "github.com/gardener/gardener/pkg/utils/kubernetes"
 	"github.com/gardener/gardener/pkg/utils/managedresources"
 	. "github.com/gardener/gardener/pkg/utils/test/matchers"
@@ -61,8 +61,8 @@ var _ = Describe("KubeControllerManager", func() {
 		c                     *mockclient.MockClient
 		kubeControllerManager Interface
 
-		_, podCIDR, _                 = net.ParseCIDR("100.96.0.0/11")
-		_, serviceCIDR, _             = net.ParseCIDR("100.64.0.0/13")
+		podCIDR, _                    = cidrs.ParseCidrs("100.96.0.0/11")
+		serviceCIDR, _                = cidrs.ParseCidrs("100.64.0.0/13")
 		fakeErr                       = fmt.Errorf("fake error")
 		namespace                     = "shoot--foo--bar"
 		version                       = "1.17.2"
@@ -86,7 +86,7 @@ var _ = Describe("KubeControllerManager", func() {
 		kcmConfig                    = gardencorev1beta1.KubeControllerManagerConfig{
 			KubernetesConfig:              gardencorev1beta1.KubernetesConfig{},
 			HorizontalPodAutoscalerConfig: &hpaConfig,
-			NodeCIDRMaskSize:              &nodeCIDRMask,
+			NodeCIDRMaskSize4:             &nodeCIDRMask,
 			PodEvictionTimeout:            &podEvictionTimeout,
 			NodeMonitorGracePeriod:        &nodeMonitorGracePeriod,
 		}
@@ -121,8 +121,8 @@ var _ = Describe("KubeControllerManager", func() {
 					semverVersion,
 					image,
 					&kcmConfig,
-					podCIDR,
-					serviceCIDR,
+					&podCIDR,
+					&serviceCIDR,
 					hvpaConfigDisabled,
 				)
 			})
@@ -432,7 +432,7 @@ var _ = Describe("KubeControllerManager", func() {
 											Name:            "kube-controller-manager",
 											Image:           image,
 											ImagePullPolicy: corev1.PullIfNotPresent,
-											Command:         commandForKubernetesVersion(version, 10257, config.NodeCIDRMaskSize, config.PodEvictionTimeout, config.NodeMonitorGracePeriod, namespace, serviceCIDR, podCIDR, getHorizontalPodAutoscalerConfig(config.HorizontalPodAutoscalerConfig), kutil.FeatureGatesToCommandLineParameter(config.FeatureGates)),
+											Command:         commandForKubernetesVersion(version, 10257, config.NodeCIDRMaskSize4, config.PodEvictionTimeout, config.NodeMonitorGracePeriod, namespace, &serviceCIDR, &podCIDR, getHorizontalPodAutoscalerConfig(config.HorizontalPodAutoscalerConfig), kutil.FeatureGatesToCommandLineParameter(config.FeatureGates)),
 											LivenessProbe: &corev1.Probe{
 												Handler: corev1.Handler{
 													HTTPGet: &corev1.HTTPGetAction{
@@ -534,10 +534,10 @@ var _ = Describe("KubeControllerManager", func() {
 						SyncPeriod:              &metav1.Duration{Duration: 20 * time.Second},
 						Tolerance:               pointer.Float64(0.3),
 					},
-					NodeCIDRMaskSize: nil,
+					NodeCIDRMaskSize4: nil,
 				}
 				configWithFeatureFlags           = &gardencorev1beta1.KubeControllerManagerConfig{KubernetesConfig: gardencorev1beta1.KubernetesConfig{FeatureGates: map[string]bool{"Foo": true, "Bar": false, "Baz": false}}}
-				configWithNodeCIDRMaskSize       = &gardencorev1beta1.KubeControllerManagerConfig{NodeCIDRMaskSize: pointer.Int32(26)}
+				configWithNodeCIDRMaskSize       = &gardencorev1beta1.KubeControllerManagerConfig{NodeCIDRMaskSize4: pointer.Int32(26)}
 				configWithPodEvictionTimeout     = &gardencorev1beta1.KubeControllerManagerConfig{PodEvictionTimeout: &podEvictionTimeout}
 				configWithNodeMonitorGracePeriod = &gardencorev1beta1.KubeControllerManagerConfig{NodeMonitorGracePeriod: &nodeMonitorGracePeriod}
 			)
@@ -554,8 +554,8 @@ var _ = Describe("KubeControllerManager", func() {
 						semverVersion,
 						image,
 						config,
-						podCIDR,
-						serviceCIDR,
+						&podCIDR,
+						&serviceCIDR,
 						hvpaConfig,
 					)
 
@@ -689,7 +689,7 @@ func commandForKubernetesVersion(
 	podEvictionTimeout *metav1.Duration,
 	nodeMonitorGracePeriod *metav1.Duration,
 	clusterName string,
-	serviceNetwork, podNetwork *net.IPNet,
+	serviceNetwork, podNetwork *cidrs.CidrPair,
 	horizontalPodAutoscalerConfig *gardencorev1beta1.HorizontalPodAutoscalerConfig,
 	featureGateFlags string,
 ) []string {

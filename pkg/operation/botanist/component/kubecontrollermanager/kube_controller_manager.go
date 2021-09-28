@@ -17,7 +17,6 @@ package kubecontrollermanager
 import (
 	"context"
 	"fmt"
-	"net"
 	"strings"
 	"time"
 
@@ -26,6 +25,7 @@ import (
 	"github.com/gardener/gardener/pkg/controllerutils"
 	"github.com/gardener/gardener/pkg/operation/botanist/component"
 	"github.com/gardener/gardener/pkg/utils"
+	"github.com/gardener/gardener/pkg/utils/cidrs"
 	kutil "github.com/gardener/gardener/pkg/utils/kubernetes"
 	"github.com/gardener/gardener/pkg/utils/managedresources"
 	"github.com/gardener/gardener/pkg/utils/secrets"
@@ -107,8 +107,8 @@ func New(
 	version *semver.Version,
 	image string,
 	config *gardencorev1beta1.KubeControllerManagerConfig,
-	podNetwork *net.IPNet,
-	serviceNetwork *net.IPNet,
+	podNetwork *cidrs.CidrPair,
+	serviceNetwork *cidrs.CidrPair,
 	hvpaConfig *HVPAConfig,
 ) Interface {
 	return &kubeControllerManager{
@@ -134,8 +134,8 @@ type kubeControllerManager struct {
 	replicas       int32
 	config         *gardencorev1beta1.KubeControllerManagerConfig
 	secrets        Secrets
-	podNetwork     *net.IPNet
-	serviceNetwork *net.IPNet
+	podNetwork     *cidrs.CidrPair
+	serviceNetwork *cidrs.CidrPair
 	hvpaConfig     *HVPAConfig
 }
 
@@ -462,8 +462,12 @@ func (k *kubeControllerManager) computeCommand(port int32) []string {
 		"--controllers=*,bootstrapsigner,tokencleaner",
 	)
 
-	if k.config.NodeCIDRMaskSize != nil {
-		command = append(command, fmt.Sprintf("--node-cidr-mask-size=%d", *k.config.NodeCIDRMaskSize))
+	if k.config.NodeCIDRMaskSize4 != nil {
+		command = append(command, fmt.Sprintf("--node-cidr-mask-size-ipv4=%d", *k.config.NodeCIDRMaskSize4))
+	}
+
+	if k.config.NodeCIDRMaskSize6 != nil {
+		command = append(command, fmt.Sprintf("--node-cidr-mask-size-ipv6=%d", *k.config.NodeCIDRMaskSize6))
 	}
 
 	command = append(command,

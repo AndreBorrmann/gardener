@@ -4294,14 +4294,26 @@ HorizontalPodAutoscalerConfig
 </tr>
 <tr>
 <td>
-<code>nodeCIDRMaskSize</code></br>
+<code>nodeCIDRMaskSize4</code></br>
 <em>
 int32
 </em>
 </td>
 <td>
 <em>(Optional)</em>
-<p>NodeCIDRMaskSize defines the mask size for node cidr in cluster (default is 24)</p>
+<p>NodeCIDRMaskSize4 defines the mask size for IPv4 node cidr in cluster (default is 24)</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>nodeCIDRMaskSize6</code></br>
+<em>
+int32
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>NodeCIDRMaskSize6 defines the mask size for IPv6 node cidr in cluster (default is 24)</p>
 </td>
 </tr>
 <tr>

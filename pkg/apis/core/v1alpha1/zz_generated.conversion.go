@@ -3002,7 +3002,8 @@ func autoConvert_v1alpha1_KubeControllerManagerConfig_To_core_KubeControllerMana
 		return err
 	}
 	out.HorizontalPodAutoscalerConfig = (*core.HorizontalPodAutoscalerConfig)(unsafe.Pointer(in.HorizontalPodAutoscalerConfig))
-	out.NodeCIDRMaskSize = (*int32)(unsafe.Pointer(in.NodeCIDRMaskSize))
+	out.NodeCIDRMaskSize4 = (*int32)(unsafe.Pointer(in.NodeCIDRMaskSize4))
+	out.NodeCIDRMaskSize6 = (*int32)(unsafe.Pointer(in.NodeCIDRMaskSize6))
 	out.PodEvictionTimeout = (*metav1.Duration)(unsafe.Pointer(in.PodEvictionTimeout))
 	out.NodeMonitorGracePeriod = (*metav1.Duration)(unsafe.Pointer(in.NodeMonitorGracePeriod))
 	return nil
@@ -3018,7 +3019,8 @@ func autoConvert_core_KubeControllerManagerConfig_To_v1alpha1_KubeControllerMana
 		return err
 	}
 	out.HorizontalPodAutoscalerConfig = (*HorizontalPodAutoscalerConfig)(unsafe.Pointer(in.HorizontalPodAutoscalerConfig))
-	out.NodeCIDRMaskSize = (*int32)(unsafe.Pointer(in.NodeCIDRMaskSize))
+	out.NodeCIDRMaskSize4 = (*int32)(unsafe.Pointer(in.NodeCIDRMaskSize4))
+	out.NodeCIDRMaskSize6 = (*int32)(unsafe.Pointer(in.NodeCIDRMaskSize6))
 	out.PodEvictionTimeout = (*metav1.Duration)(unsafe.Pointer(in.PodEvictionTimeout))
 	out.NodeMonitorGracePeriod = (*metav1.Duration)(unsafe.Pointer(in.NodeMonitorGracePeriod))
 	return nil

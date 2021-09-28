@@ -16,7 +16,6 @@ package network
 
 import (
 	"context"
-	"net"
 	"time"
 
 	"github.com/gardener/gardener/pkg/apis/core/v1alpha1"
@@ -25,6 +24,7 @@ import (
 	"github.com/gardener/gardener/pkg/controllerutils"
 	"github.com/gardener/gardener/pkg/extensions"
 	"github.com/gardener/gardener/pkg/operation/botanist/component"
+	"github.com/gardener/gardener/pkg/utils/cidrs"
 
 	"github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -56,9 +56,9 @@ type Values struct {
 	// ProviderConfig contains the provider config for the Network extension.
 	ProviderConfig *runtime.RawExtension
 	// PodCIDR is the Shoot's pod CIDR in the Shoot VPC
-	PodCIDR *net.IPNet
+	PodCIDR *cidrs.CidrPair
 	// ServiceCIDR is the Shoot's service CIDR in the Shoot VPC
-	ServiceCIDR *net.IPNet
+	ServiceCIDR *cidrs.CidrPair
 }
 
 // New creates a new instance of DeployWaiter for a Network.

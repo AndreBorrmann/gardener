@@ -16,7 +16,6 @@ package shoot_test
 
 import (
 	"context"
-	"net"
 
 	gardencorev1beta1 "github.com/gardener/gardener/pkg/apis/core/v1beta1"
 	v1beta1constants "github.com/gardener/gardener/pkg/apis/core/v1beta1/constants"
@@ -25,7 +24,9 @@ import (
 	mockclient "github.com/gardener/gardener/pkg/mock/controller-runtime/client"
 	"github.com/gardener/gardener/pkg/operation/garden"
 	. "github.com/gardener/gardener/pkg/operation/shoot"
+	"github.com/gardener/gardener/pkg/utils/cidrs"
 	kutil "github.com/gardener/gardener/pkg/utils/kubernetes"
+	"inet.af/netaddr"
 
 	dnsv1alpha1 "github.com/gardener/external-dns-management/pkg/apis/dns/v1alpha1"
 	"github.com/golang/mock/gomock"
@@ -80,13 +81,11 @@ var _ = Describe("shoot", func() {
 
 				Expect(err).ToNot(HaveOccurred())
 				Expect(result).To(PointTo(Equal(Networks{
-					Pods: &net.IPNet{
-						IP:   []byte{10, 0, 0, 0},
-						Mask: []byte{255, 255, 255, 0},
+					Pods: &cidrs.CidrPair{
+						V4Cidr: netaddr.MustParseIPPrefix("10.0.0.0/24"),
 					},
-					Services: &net.IPNet{
-						IP:   []byte{20, 0, 0, 0},
-						Mask: []byte{255, 255, 255, 0},
+					Services: &cidrs.CidrPair{
+						V4Cidr: netaddr.MustParseIPPrefix("20.0.0.0/24"),
 					},
 					APIServer: []byte{20, 0, 0, 1},
 					CoreDNS:   []byte{20, 0, 0, 10},

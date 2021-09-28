@@ -3370,9 +3370,16 @@ func schema_pkg_apis_core_v1alpha1_KubeControllerManagerConfig(ref common.Refere
 							Ref:         ref("github.com/gardener/gardener/pkg/apis/core/v1alpha1.HorizontalPodAutoscalerConfig"),
 						},
 					},
-					"nodeCIDRMaskSize": {
+					"nodeCIDRMaskSize4": {
 						SchemaProps: spec.SchemaProps{
-							Description: "NodeCIDRMaskSize defines the mask size for node cidr in cluster (default is 24)",
+							Description: "NodeCIDRMaskSize4 defines the mask size for IPv4 node cidr in cluster (default is 24)",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"nodeCIDRMaskSize6": {
+						SchemaProps: spec.SchemaProps{
+							Description: "NodeCIDRMaskSize6 defines the mask size for IPv6 node cidr in cluster",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
@@ -10084,9 +10091,16 @@ func schema_pkg_apis_core_v1beta1_KubeControllerManagerConfig(ref common.Referen
 							Ref:         ref("github.com/gardener/gardener/pkg/apis/core/v1beta1.HorizontalPodAutoscalerConfig"),
 						},
 					},
-					"nodeCIDRMaskSize": {
+					"nodeCIDRMaskSize4": {
 						SchemaProps: spec.SchemaProps{
-							Description: "NodeCIDRMaskSize defines the mask size for node cidr in cluster (default is 24)",
+							Description: "NodeCIDRMaskSize4 defines the mask size for IPv4 node cidr in cluster (default is 24)",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"nodeCIDRMaskSize6": {
+						SchemaProps: spec.SchemaProps{
+							Description: "NodeCIDRMaskSize6 defines the mask size for IPv6 node cidr in cluster (default is 24)",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},

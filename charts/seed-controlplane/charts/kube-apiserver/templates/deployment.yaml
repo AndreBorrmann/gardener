@@ -308,7 +308,7 @@ spec:
       {{- if (not .Values.reversedVPN.enabled) }}
       - name: vpn-seed
         image: {{ index .Values.images "vpn-seed" }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         env:
         - name: MAIN_VPN_SEED
           value: "true"
