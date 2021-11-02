@@ -586,12 +586,12 @@ func ToNetworks(s *gardencorev1beta1.Shoot) (*Networks, error) {
 
 	// TODO: do we need to consider IPv4/IPv6 ?
 	//       let's assume using v4 addressed for apiServer and coreDNS
-	apiserver, err := common.ComputeOffsetIP(svc.Cidr4().IPNet(), 1)
+	apiserver, err := common.ComputeOffsetIP(svc.Cidr4(), 1)
 	if err != nil {
 		return nil, fmt.Errorf("cannot calculate default/kubernetes ClusterIP: %w", err)
 	}
 
-	coreDNS, err := common.ComputeOffsetIP(svc.Cidr4().IPNet(), 10)
+	coreDNS, err := common.ComputeOffsetIP(svc.Cidr4(), 10)
 	if err != nil {
 		return nil, fmt.Errorf("cannot calculate CoreDNS ClusterIP: %w", err)
 	}

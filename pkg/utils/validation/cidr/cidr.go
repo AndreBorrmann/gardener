@@ -15,9 +15,9 @@
 package cidr
 
 import (
-	"fmt"
 	"net"
 
+	"github.com/gardener/gardener/pkg/utils/cidrs"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 )
 
@@ -28,7 +28,7 @@ type CIDR interface {
 	// GetFieldPath returns the fieldpath
 	GetFieldPath() *field.Path
 	// GetIPNet optionally returns the IPNet of the CIDR
-	GetIPNet() *net.IPNet
+	GetIPNet() []*net.IPNet
 	// Parse checks if CIDR parses
 	Parse() bool
 	// ValidateNotSubset returns errors if subsets is a subset.
@@ -42,14 +42,15 @@ type CIDR interface {
 type cidrPath struct {
 	cidr       string
 	fieldPath  *field.Path
-	net        *net.IPNet
+	cidrPair   cidrs.CidrPair
 	ParseError error
 }
 
 // NewCIDR creates a new instance of cidrPath
 func NewCIDR(c string, f *field.Path) CIDR {
-	_, ipNet, err := net.ParseCIDR(string(c))
-	return &cidrPath{c, f, ipNet, err}
+	cidr_pair, err := cidrs.ParseCidrs(c)
+	//_, ipNet, err := net.ParseCIDR(string(c))
+	return &cidrPath{c, f, cidr_pair, err}
 }
 
 func (c *cidrPath) ValidateSubset(subsets ...CIDR) field.ErrorList {
@@ -57,6 +58,7 @@ func (c *cidrPath) ValidateSubset(subsets ...CIDR) field.ErrorList {
 	if c.ParseError != nil {
 		return allErrs
 	}
+	/* TODO
 	for _, subset := range subsets {
 		if subset == nil || c == subset || !subset.Parse() {
 			continue
@@ -65,6 +67,7 @@ func (c *cidrPath) ValidateSubset(subsets ...CIDR) field.ErrorList {
 			allErrs = append(allErrs, field.Invalid(subset.GetFieldPath(), subset.GetCIDR(), fmt.Sprintf("must be a subset of %q (%q)", c.fieldPath.String(), c.cidr)))
 		}
 	}
+	*/
 	return allErrs
 }
 
@@ -73,6 +76,7 @@ func (c *cidrPath) ValidateNotSubset(subsets ...CIDR) field.ErrorList {
 	if c.ParseError != nil {
 		return allErrs
 	}
+	/* TODO
 	for _, subset := range subsets {
 		if subset == nil || c == subset || !subset.Parse() {
 			continue
@@ -81,6 +85,7 @@ func (c *cidrPath) ValidateNotSubset(subsets ...CIDR) field.ErrorList {
 			allErrs = append(allErrs, field.Invalid(subset.GetFieldPath(), subset.GetCIDR(), fmt.Sprintf("must not be a subset of %q (%q)", c.fieldPath.String(), c.cidr)))
 		}
 	}
+	*/
 	return allErrs
 }
 
@@ -98,8 +103,8 @@ func (c *cidrPath) Parse() (success bool) {
 	return c.ParseError == nil
 }
 
-func (c *cidrPath) GetIPNet() *net.IPNet {
-	return c.net
+func (c *cidrPath) GetIPNet() []*net.IPNet {
+	return c.cidrPair.IpNets
 }
 
 func (c *cidrPath) GetFieldPath() *field.Path {

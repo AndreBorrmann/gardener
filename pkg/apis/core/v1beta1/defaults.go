@@ -155,13 +155,13 @@ func SetDefaults_Shoot(obj *Shoot) {
 	if obj.Spec.Kubernetes.KubeControllerManager == nil {
 		obj.Spec.Kubernetes.KubeControllerManager = &KubeControllerManagerConfig{}
 	}
-	if obj.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSize4 == nil {
-		obj.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSize4 = calculateDefaultNodeCIDRMaskSize(obj.Spec.Kubernetes.Kubelet, obj.Spec.Provider.Workers)
+	if obj.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSizeIPv4 == nil {
+		obj.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSizeIPv4 = calculateDefaultNodeCIDRMaskSize(obj.Spec.Kubernetes.Kubelet, obj.Spec.Provider.Workers)
 	}
 	// TODO: provide default value for IPv6 node CIDR mask
 	/*
-		if obj.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSize6 == nil {
-			obj.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSize6 = calculateDefaultNodeCIDRMaskSize(obj.Spec.Kubernetes.Kubelet, obj.Spec.Provider.Workers)
+		if obj.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSizeIPv6 == nil {
+			obj.Spec.Kubernetes.KubeControllerManager.NodeCIDRMaskSizeIPv6 = calculateDefaultNodeCIDRMaskSize(obj.Spec.Kubernetes.Kubelet, obj.Spec.Provider.Workers)
 		}
 	*/
 	if obj.Spec.Kubernetes.KubeControllerManager.PodEvictionTimeout == nil {

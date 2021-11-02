@@ -912,13 +912,13 @@ message KubeControllerManagerConfig {
   // +optional
   optional HorizontalPodAutoscalerConfig horizontalPodAutoscaler = 2;
 
-  // NodeCIDRMaskSize4 defines the mask size for IPv4 node cidr in cluster (default is 24)
+  // NodeCIDRMaskSizeIPv4 defines the mask size for IPv4 node cidr in cluster (default is 24)
   // +optional
-  optional int32 nodeCIDRMaskSize4 = 3;
+  optional int32 nodeCIDRMaskSizeIPv4 = 3;
 
-  // NodeCIDRMaskSize6 defines the mask size for IPv6 node cidr in cluster
+  // NodeCIDRMaskSizeIPv6 defines the mask size for IPv6 node cidr in cluster
   // +optional
-  optional int32 nodeCIDRMaskSize6 = 4;
+  optional int32 nodeCIDRMaskSizeIPv6 = 4;
 
   // PodEvictionTimeout defines the grace period for deleting pods on failed nodes. Defaults to 2m.
   // +optional

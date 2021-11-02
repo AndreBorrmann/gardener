@@ -1678,13 +1678,13 @@ func (in *KubeControllerManagerConfig) DeepCopyInto(out *KubeControllerManagerCo
 		*out = new(HorizontalPodAutoscalerConfig)
 		(*in).DeepCopyInto(*out)
 	}
-	if in.NodeCIDRMaskSize4 != nil {
-		in, out := &in.NodeCIDRMaskSize4, &out.NodeCIDRMaskSize4
+	if in.NodeCIDRMaskSizeIPv4 != nil {
+		in, out := &in.NodeCIDRMaskSizeIPv4, &out.NodeCIDRMaskSizeIPv4
 		*out = new(int32)
 		**out = **in
 	}
-	if in.NodeCIDRMaskSize6 != nil {
-		in, out := &in.NodeCIDRMaskSize6, &out.NodeCIDRMaskSize6
+	if in.NodeCIDRMaskSizeIPv6 != nil {
+		in, out := &in.NodeCIDRMaskSizeIPv6, &out.NodeCIDRMaskSizeIPv6
 		*out = new(int32)
 		**out = **in
 	}

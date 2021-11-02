@@ -462,12 +462,12 @@ func (k *kubeControllerManager) computeCommand(port int32) []string {
 		"--controllers=*,bootstrapsigner,tokencleaner",
 	)
 
-	if k.config.NodeCIDRMaskSize4 != nil {
-		command = append(command, fmt.Sprintf("--node-cidr-mask-size-ipv4=%d", *k.config.NodeCIDRMaskSize4))
+	if k.config.NodeCIDRMaskSizeIPv4 != nil {
+		command = append(command, fmt.Sprintf("--node-cidr-mask-size-ipv4=%d", *k.config.NodeCIDRMaskSizeIPv4))
 	}
 
-	if k.config.NodeCIDRMaskSize6 != nil {
-		command = append(command, fmt.Sprintf("--node-cidr-mask-size-ipv6=%d", *k.config.NodeCIDRMaskSize6))
+	if k.config.NodeCIDRMaskSizeIPv6 != nil {
+		command = append(command, fmt.Sprintf("--node-cidr-mask-size-ipv6=%d", *k.config.NodeCIDRMaskSizeIPv6))
 	}
 
 	command = append(command,

@@ -32,6 +32,7 @@ import (
 	"github.com/gardener/gardener/pkg/operation/botanist/component/vpnseedserver"
 	mockvpnseedserver "github.com/gardener/gardener/pkg/operation/botanist/component/vpnseedserver/mock"
 	shootpkg "github.com/gardener/gardener/pkg/operation/shoot"
+	"github.com/gardener/gardener/pkg/utils/cidrs"
 	"github.com/gardener/gardener/pkg/utils/imagevector"
 	"github.com/gardener/gardener/pkg/utils/test"
 
@@ -70,8 +71,8 @@ var _ = Describe("VPNSeedServer", func() {
 			botanist.Shoot = &shootpkg.Shoot{
 				DisableDNS: true,
 				Networks: &shootpkg.Networks{
-					Services: &net.IPNet{IP: net.IP{10, 0, 0, 1}, Mask: net.CIDRMask(10, 24)},
-					Pods:     &net.IPNet{IP: net.IP{10, 0, 0, 2}, Mask: net.CIDRMask(10, 24)},
+					Services: &cidrs.CidrPair{DualStack: false, IpNets: []*net.IPNet{{IP: net.IP{10, 0, 0, 1}, Mask: net.CIDRMask(10, 24)}}},
+					Pods:     &cidrs.CidrPair{DualStack: false, IpNets: []*net.IPNet{{IP: net.IP{10, 0, 0, 2}, Mask: net.CIDRMask(10, 24)}}},
 				},
 			}
 			botanist.Shoot.SetInfo(&gardencorev1beta1.Shoot{

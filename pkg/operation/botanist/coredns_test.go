@@ -32,7 +32,6 @@ import (
 	"github.com/gardener/gardener/pkg/utils/cidrs"
 	"github.com/gardener/gardener/pkg/utils/imagevector"
 	"github.com/gardener/gardener/pkg/utils/test"
-	"inet.af/netaddr"
 
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
@@ -70,7 +69,10 @@ var _ = Describe("CoreDNS", func() {
 			botanist.K8sSeedClient = kubernetesClient
 			botanist.Shoot.Networks = &shootpkg.Networks{
 				CoreDNS: net.ParseIP("18.19.20.21"),
-				Pods:    &cidrs.CidrPair{V4Cidr: netaddr.MustParseIPPrefix("22.23.24.25")},
+				Pods: &cidrs.CidrPair{DualStack: false, IpNets: []*net.IPNet{{
+					IP:   []byte{22, 23, 24, 25},
+					Mask: []byte{255, 255, 255, 255},
+				}}},
 			}
 		})
 

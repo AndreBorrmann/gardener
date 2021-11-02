@@ -17,6 +17,7 @@ package networkpolicies
 import (
 	"net"
 
+	"github.com/gardener/gardener/pkg/utils/cidrs"
 	networkingv1 "k8s.io/api/networking/v1"
 )
 
@@ -79,29 +80,36 @@ func NetworkPolicyPeersWithExceptions(networks []string, except ...string) ([]ne
 	var ipNets []net.IPNet
 
 	for _, n := range networks {
-		_, net, err := net.ParseCIDR(string(n))
+		cidrs, err := cidrs.ParseCidrs(string(n))
 		if err != nil {
 			return nil, err
 		}
 
-		ipNets = append(ipNets, *net)
+		if cidrs.IsDualStack() || cidrs.Is4() {
+			ipNets = append(ipNets, *cidrs.Cidr4())
+		}
+		// TODO: how to handle the IPv6 / Dualstack part of the network policies stuff?
 	}
 
 	return ToNetworkPolicyPeersWithExceptions(ipNets, except...)
 }
 
-func excludeBlock(parentBlock *net.IPNet, cidrs ...string) ([]string, error) {
+func excludeBlock(parentBlock *net.IPNet, cidrList ...string) ([]string, error) {
 	var matchedCIDRs []string
 
-	for _, cidr := range cidrs {
-		ip, ipNet, err := net.ParseCIDR(cidr)
+	for _, cidr := range cidrList {
+		cidrPair, err := cidrs.ParseCidrs(cidr)
 		if err != nil {
 			return matchedCIDRs, err
 		}
 
-		if parentBlock.Contains(ip) && !ipNet.Contains(parentBlock.IP) {
-			matchedCIDRs = append(matchedCIDRs, cidr)
+		if cidrPair.IsDualStack() || cidrPair.Is4() {
+			if parentBlock.Contains(cidrPair.Cidr4().IP) && !cidrPair.Cidr4().Contains(parentBlock.IP) {
+				matchedCIDRs = append(matchedCIDRs, cidrPair.Cidr4().String())
+			}
 		}
+		// TODO: how to handle the IPv6 / Dualstack side of the story?
+		// covering only IPv4 for the time beeing
 	}
 
 	return matchedCIDRs, nil

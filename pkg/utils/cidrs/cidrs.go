@@ -17,51 +17,34 @@ package cidrs
 
 import (
 	"fmt"
+	"net"
 	"regexp"
 
-	"inet.af/netaddr"
+	k8s "k8s.io/utils/net"
 )
 
 // The CidrPair stores the IPv4 and IPv6 CIDRS if present
 type CidrPair struct {
-	V4Cidr netaddr.IPPrefix
-	V6Cidr netaddr.IPPrefix
+	DualStack bool
+	IpNets    []*net.IPNet
 }
 
 // Parse the CidrPair from a String
 func ParseCidrs(s string) (CidrPair, error) {
 	split := regexp.MustCompile(", *")
 	cidrs := split.Split(s, -1)
-	cidr_count := len(cidrs)
-	if cidr_count > 2 {
-		return CidrPair{}, fmt.Errorf("cidrpair.ParseCidrs(%q): more then 2 CIDRS given", s)
+	dualstack, err := k8s.IsDualStackCIDRStrings(cidrs)
+	if err != nil {
+		return CidrPair{}, err
 	}
-	cidr1, err := netaddr.ParseIPPrefix(cidrs[0])
+	ipnets, err := k8s.ParseCIDRs(cidrs)
 	if err != nil {
 		return CidrPair{}, err
 	}
 
-	if cidr_count > 1 {
-		cidr2, err := netaddr.ParseIPPrefix(cidrs[1])
-		if err != nil {
-			return CidrPair{}, err
-		}
-		if (cidr1.IP().Is4() && cidr2.IP().Is4()) || (cidr1.IP().Is6() && cidr2.IP().Is6()) {
-			return CidrPair{}, fmt.Errorf("cidrpair.ParseCidrs(%q): both CIDRS cann't have the same type (IPv4 or IPv6)", s)
-		}
-
-		if cidr1.IP().Is4() {
-			return CidrPair{V4Cidr: cidr1, V6Cidr: cidr2}, nil
-		} else {
-			return CidrPair{V4Cidr: cidr2, V6Cidr: cidr1}, nil
-		}
-	} else {
-		if cidr1.IP().Is4() {
-			return CidrPair{V4Cidr: cidr1}, nil
-		} else {
-			return CidrPair{V6Cidr: cidr1}, nil
-		}
-	}
+	return CidrPair{
+		DualStack: dualstack, IpNets: ipnets,
+	}, nil
 }
 
 // Parse the CidrPair from a String
@@ -74,22 +57,31 @@ func MustParseCidrs(s string) CidrPair {
 	return cp
 }
 
-func (cp CidrPair) Cidr4() *netaddr.IPPrefix { return &cp.V4Cidr }
+func (cp CidrPair) Cidr4() *net.IPNet {
+	if k8s.IsIPv4CIDR(cp.IpNets[0]) {
+		return cp.IpNets[0]
+	}
 
-func (cp CidrPair) Cidr6() *netaddr.IPPrefix { return &cp.V6Cidr }
+	return cp.IpNets[1]
+}
 
-func (cp CidrPair) IsDualStack() bool { return cp.V4Cidr.IsValid() && cp.V6Cidr.IsValid() }
+func (cp CidrPair) Cidr6() *net.IPNet {
+	if k8s.IsIPv6CIDR(cp.IpNets[0]) {
+		return cp.IpNets[0]
+	}
 
-func (cp CidrPair) Is4() bool { return cp.V4Cidr.IsValid() }
+	return cp.IpNets[1]
+}
 
-func (cp CidrPair) Is6() bool { return cp.V6Cidr.IsValid() }
+func (cp CidrPair) IsDualStack() bool { return cp.DualStack }
+
+func (cp CidrPair) Is4() bool { return len(cp.IpNets) == 1 && k8s.IsIPv4CIDR(cp.IpNets[0]) }
+
+func (cp CidrPair) Is6() bool { return len(cp.IpNets) == 1 && k8s.IsIPv6CIDR(cp.IpNets[0]) }
 
 func (cp CidrPair) String() string {
 	if cp.IsDualStack() {
-		return fmt.Sprintf("%s,%s", cp.V4Cidr, cp.V6Cidr)
+		return fmt.Sprintf("%s,%s", cp.IpNets[0], cp.IpNets[1])
 	}
-	if cp.Is4() {
-		return fmt.Sprint(cp.V4Cidr)
-	}
-	return fmt.Sprint(cp.V6Cidr)
+	return fmt.Sprint(cp.IpNets[0])
 }

@@ -7997,13 +7997,13 @@ func (m *KubeControllerManagerConfig) MarshalToSizedBuffer(dAtA []byte) (int, er
 		i--
 		dAtA[i] = 0x2a
 	}
-	if m.NodeCIDRMaskSize6 != nil {
-		i = encodeVarintGenerated(dAtA, i, uint64(*m.NodeCIDRMaskSize6))
+	if m.NodeCIDRMaskSizeIPv6 != nil {
+		i = encodeVarintGenerated(dAtA, i, uint64(*m.NodeCIDRMaskSizeIPv6))
 		i--
 		dAtA[i] = 0x20
 	}
-	if m.NodeCIDRMaskSize4 != nil {
-		i = encodeVarintGenerated(dAtA, i, uint64(*m.NodeCIDRMaskSize4))
+	if m.NodeCIDRMaskSizeIPv4 != nil {
+		i = encodeVarintGenerated(dAtA, i, uint64(*m.NodeCIDRMaskSizeIPv4))
 		i--
 		dAtA[i] = 0x18
 	}
@@ -14449,11 +14449,11 @@ func (m *KubeControllerManagerConfig) Size() (n int) {
 		l = m.HorizontalPodAutoscalerConfig.Size()
 		n += 1 + l + sovGenerated(uint64(l))
 	}
-	if m.NodeCIDRMaskSize4 != nil {
-		n += 1 + sovGenerated(uint64(*m.NodeCIDRMaskSize4))
+	if m.NodeCIDRMaskSizeIPv4 != nil {
+		n += 1 + sovGenerated(uint64(*m.NodeCIDRMaskSizeIPv4))
 	}
-	if m.NodeCIDRMaskSize6 != nil {
-		n += 1 + sovGenerated(uint64(*m.NodeCIDRMaskSize6))
+	if m.NodeCIDRMaskSizeIPv6 != nil {
+		n += 1 + sovGenerated(uint64(*m.NodeCIDRMaskSizeIPv6))
 	}
 	if m.PodEvictionTimeout != nil {
 		l = m.PodEvictionTimeout.Size()
@@ -17244,8 +17244,8 @@ func (this *KubeControllerManagerConfig) String() string {
 	s := strings.Join([]string{`&KubeControllerManagerConfig{`,
 		`KubernetesConfig:` + strings.Replace(strings.Replace(this.KubernetesConfig.String(), "KubernetesConfig", "KubernetesConfig", 1), `&`, ``, 1) + `,`,
 		`HorizontalPodAutoscalerConfig:` + strings.Replace(this.HorizontalPodAutoscalerConfig.String(), "HorizontalPodAutoscalerConfig", "HorizontalPodAutoscalerConfig", 1) + `,`,
-		`NodeCIDRMaskSize4:` + valueToStringGenerated(this.NodeCIDRMaskSize4) + `,`,
-		`NodeCIDRMaskSize6:` + valueToStringGenerated(this.NodeCIDRMaskSize6) + `,`,
+		`NodeCIDRMaskSizeIP4:` + valueToStringGenerated(this.NodeCIDRMaskSizeIPv4) + `,`,
+		`NodeCIDRMaskSizeIP6:` + valueToStringGenerated(this.NodeCIDRMaskSizeIPv6) + `,`,
 		`PodEvictionTimeout:` + strings.Replace(fmt.Sprintf("%v", this.PodEvictionTimeout), "Duration", "v11.Duration", 1) + `,`,
 		`NodeMonitorGracePeriod:` + strings.Replace(fmt.Sprintf("%v", this.NodeMonitorGracePeriod), "Duration", "v11.Duration", 1) + `,`,
 		`}`,
@@ -27474,7 +27474,7 @@ func (m *KubeControllerManagerConfig) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 3:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field NodeCIDRMaskSize4", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field NodeCIDRMaskSizeIPv4", wireType)
 			}
 			var v int32
 			for shift := uint(0); ; shift += 7 {
@@ -27491,10 +27491,10 @@ func (m *KubeControllerManagerConfig) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-			m.NodeCIDRMaskSize4 = &v
+			m.NodeCIDRMaskSizeIPv4 = &v
 		case 4:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field NodeCIDRMaskSize6", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field NodeCIDRMaskSizeIPv6", wireType)
 			}
 			var v int32
 			for shift := uint(0); ; shift += 7 {
@@ -27511,7 +27511,7 @@ func (m *KubeControllerManagerConfig) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-			m.NodeCIDRMaskSize6 = &v
+			m.NodeCIDRMaskSizeIPv6 = &v
 		case 5:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field PodEvictionTimeout", wireType)

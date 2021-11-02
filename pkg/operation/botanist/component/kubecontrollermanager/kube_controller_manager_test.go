@@ -86,7 +86,7 @@ var _ = Describe("KubeControllerManager", func() {
 		kcmConfig                    = gardencorev1beta1.KubeControllerManagerConfig{
 			KubernetesConfig:              gardencorev1beta1.KubernetesConfig{},
 			HorizontalPodAutoscalerConfig: &hpaConfig,
-			NodeCIDRMaskSize4:             &nodeCIDRMask,
+			NodeCIDRMaskSizeIPv4:          &nodeCIDRMask,
 			PodEvictionTimeout:            &podEvictionTimeout,
 			NodeMonitorGracePeriod:        &nodeMonitorGracePeriod,
 		}
@@ -432,7 +432,7 @@ var _ = Describe("KubeControllerManager", func() {
 											Name:            "kube-controller-manager",
 											Image:           image,
 											ImagePullPolicy: corev1.PullIfNotPresent,
-											Command:         commandForKubernetesVersion(version, 10257, config.NodeCIDRMaskSize4, config.PodEvictionTimeout, config.NodeMonitorGracePeriod, namespace, &serviceCIDR, &podCIDR, getHorizontalPodAutoscalerConfig(config.HorizontalPodAutoscalerConfig), kutil.FeatureGatesToCommandLineParameter(config.FeatureGates)),
+											Command:         commandForKubernetesVersion(version, 10257, config.NodeCIDRMaskSizeIPv4, config.PodEvictionTimeout, config.NodeMonitorGracePeriod, namespace, &serviceCIDR, &podCIDR, getHorizontalPodAutoscalerConfig(config.HorizontalPodAutoscalerConfig), kutil.FeatureGatesToCommandLineParameter(config.FeatureGates)),
 											LivenessProbe: &corev1.Probe{
 												Handler: corev1.Handler{
 													HTTPGet: &corev1.HTTPGetAction{
@@ -534,10 +534,10 @@ var _ = Describe("KubeControllerManager", func() {
 						SyncPeriod:              &metav1.Duration{Duration: 20 * time.Second},
 						Tolerance:               pointer.Float64(0.3),
 					},
-					NodeCIDRMaskSize4: nil,
+					NodeCIDRMaskSizeIPv4: nil,
 				}
 				configWithFeatureFlags           = &gardencorev1beta1.KubeControllerManagerConfig{KubernetesConfig: gardencorev1beta1.KubernetesConfig{FeatureGates: map[string]bool{"Foo": true, "Bar": false, "Baz": false}}}
-				configWithNodeCIDRMaskSize       = &gardencorev1beta1.KubeControllerManagerConfig{NodeCIDRMaskSize4: pointer.Int32(26)}
+				configWithNodeCIDRMaskSize       = &gardencorev1beta1.KubeControllerManagerConfig{NodeCIDRMaskSizeIPv4: pointer.Int32(26)}
 				configWithPodEvictionTimeout     = &gardencorev1beta1.KubeControllerManagerConfig{PodEvictionTimeout: &podEvictionTimeout}
 				configWithNodeMonitorGracePeriod = &gardencorev1beta1.KubeControllerManagerConfig{NodeMonitorGracePeriod: &nodeMonitorGracePeriod}
 			)

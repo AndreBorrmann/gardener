@@ -16,9 +16,9 @@ package cidr
 
 import (
 	"fmt"
-	"net"
 
 	v1beta1constants "github.com/gardener/gardener/pkg/apis/core/v1beta1/constants"
+	"github.com/gardener/gardener/pkg/utils/cidrs"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 )
 
@@ -72,7 +72,32 @@ func ValidateNetworkDisjointedness(fldPath *field.Path, shootNodes, shootPods, s
 
 // NetworksIntersect returns true if the given network CIDRs intersect.
 func NetworksIntersect(cidr1, cidr2 string) bool {
-	_, net1, err1 := net.ParseCIDR(cidr1)
-	_, net2, err2 := net.ParseCIDR(cidr2)
-	return err1 != nil || err2 != nil || net2.Contains(net1.IP) || net1.Contains(net2.IP)
+	cidr_pair1, err1 := cidrs.ParseCidrs(cidr1)
+	cidr_pair2, err2 := cidrs.ParseCidrs(cidr2)
+
+	if err1 != nil || err2 != nil {
+		return true
+	}
+
+	if cidr_pair1.IsDualStack() && cidr_pair2.IsDualStack() {
+		return cidr_pair2.Cidr4().Contains(cidr_pair1.Cidr4().IP) || cidr_pair1.Cidr4().Contains(cidr_pair2.Cidr4().IP) || cidr_pair2.Cidr6().Contains(cidr_pair1.Cidr6().IP) || cidr_pair1.Cidr6().Contains(cidr_pair2.Cidr6().IP)
+	}
+
+	if cidr_pair1.Is4() && (cidr_pair2.Is4() || cidr_pair2.IsDualStack()) {
+		return cidr_pair2.Cidr4().Contains(cidr_pair1.Cidr4().IP) || cidr_pair1.Cidr4().Contains(cidr_pair2.Cidr4().IP)
+	}
+
+	if cidr_pair1.Is6() && (cidr_pair2.Is6() || cidr_pair2.IsDualStack()) {
+		return cidr_pair2.Cidr6().Contains(cidr_pair1.Cidr6().IP) || cidr_pair1.Cidr6().Contains(cidr_pair2.Cidr6().IP)
+	}
+
+	if (cidr_pair1.Is4() || cidr_pair1.IsDualStack()) && cidr_pair2.Is4() {
+		return cidr_pair2.Cidr4().Contains(cidr_pair1.Cidr4().IP) || cidr_pair1.Cidr4().Contains(cidr_pair2.Cidr4().IP)
+	}
+
+	if (cidr_pair1.Is6() || cidr_pair1.IsDualStack()) && cidr_pair2.Is6() {
+		return cidr_pair2.Cidr6().Contains(cidr_pair1.Cidr6().IP) || cidr_pair1.Cidr6().Contains(cidr_pair2.Cidr6().IP)
+	}
+
+	return false
 }

@@ -17,13 +17,13 @@ package network_test
 import (
 	"context"
 	"fmt"
+	"net"
 	"time"
 
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sirupsen/logrus"
-	"inet.af/netaddr"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -89,10 +89,18 @@ var _ = Describe("#Network", func() {
 		c = fake.NewClientBuilder().WithScheme(s).Build()
 
 		podCIDR := cidrs.CidrPair{
-			V4Cidr: netaddr.MustParseIPPrefix(fmt.Sprintf("%s/%d", networkPodIp, networkPodMask)),
+			DualStack: false,
+			IpNets: []*net.IPNet{{
+				IP:   net.ParseIP(networkPodIp),
+				Mask: net.CIDRMask(networkPodMask, 32),
+			}},
 		}
 		serviceCIDR := cidrs.CidrPair{
-			V4Cidr: netaddr.MustParseIPPrefix(fmt.Sprintf("%s/%d", networkServiceIp, networkServiceMask)),
+			DualStack: false,
+			IpNets: []*net.IPNet{{
+				IP:   net.ParseIP(networkServiceIp),
+				Mask: net.CIDRMask(networkServiceMask, 32),
+			}},
 		}
 
 		values = &network.Values{

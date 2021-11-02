@@ -667,12 +667,12 @@ type KubeControllerManagerConfig struct {
 	// HorizontalPodAutoscalerConfig contains horizontal pod autoscaler configuration settings for the kube-controller-manager.
 	// +optional
 	HorizontalPodAutoscalerConfig *HorizontalPodAutoscalerConfig `json:"horizontalPodAutoscaler,omitempty" protobuf:"bytes,2,opt,name=horizontalPodAutoscaler"`
-	// NodeCIDRMaskSize4 defines the mask size for IPv4 node cidr in cluster (default is 24)
+	// NodeCIDRMaskSizeIPv4 defines the mask size for IPv4 node cidr in cluster (default is 24)
 	// +optional
-	NodeCIDRMaskSize4 *int32 `json:"nodeCIDRMaskSize4,omitempty" protobuf:"varint,3,opt,name=nodeCIDRMaskSize4"`
-	// NodeCIDRMaskSize6 defines the mask size for IPv6 node cidr in cluster (default is 24)
+	NodeCIDRMaskSizeIPv4 *int32 `json:"nodeCIDRMaskSizeIPv4,omitempty" protobuf:"varint,3,opt,name=nodeCIDRMaskSizeIPv4"`
+	// NodeCIDRMaskSizeIPv6 defines the mask size for IPv6 node cidr in cluster (default is 24)
 	// +optional
-	NodeCIDRMaskSize6 *int32 `json:"nodeCIDRMaskSize6,omitempty" protobuf:"varint,4,opt,name=nodeCIDRMaskSize6"`
+	NodeCIDRMaskSizeIPv6 *int32 `json:"nodeCIDRMaskSizeIPv6,omitempty" protobuf:"varint,4,opt,name=nodeCIDRMaskSizeIPv6"`
 	// PodEvictionTimeout defines the grace period for deleting pods on failed nodes. Defaults to 2m.
 	// +optional
 	PodEvictionTimeout *metav1.Duration `json:"podEvictionTimeout,omitempty" protobuf:"bytes,5,opt,name=podEvictionTimeout"`
